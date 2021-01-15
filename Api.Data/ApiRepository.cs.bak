@@ -1,0 +1,135 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Api.Data.Entitites;
+
+namespace Api.Data
+{
+    public class ApiRepository : IApiRepository
+    {
+        private ApiContext _ctx;
+        public ApiRepository(ApiContext ctx)
+        {
+            _ctx = ctx;
+        }
+
+        #region Datos de Parametro
+        public IQueryable<Parametro> GetAllParametros()
+        {
+            return _ctx.Parametro.Include("Tipo").AsQueryable();
+        }
+        public Parametro GetParametro(int parametroId, bool includeTipo = true)
+        {
+            if (includeTipo)
+            {
+                return _ctx.Parametro.Include("Tipo").Where(p => p.Id == parametroId).SingleOrDefault();
+            }
+            else
+            {
+                return _ctx.Parametro.Where(p => p.Id == parametroId).SingleOrDefault();
+            }
+        }
+        public IQueryable<Parametro> GetParametroByTipo(int tipoParametro)
+        {
+            return _ctx.Parametro.Where(p => p.TipoParametroId == tipoParametro);
+        }
+        public bool Insert(Parametro parametro)
+        {
+            try
+            {
+                _ctx.Parametro.Add(parametro);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public bool Update(Parametro originalParametro, Parametro updatedParametro)
+        {
+            _ctx.Entry(originalParametro).CurrentValues.SetValues(updatedParametro);
+            return true;
+        }
+        public bool DeleteParametro(int id)
+        {
+            try
+            {
+                var entity = _ctx.Parametro.Find(id);
+                if (entity != null)
+                {
+                    _ctx.Parametro.Remove(entity);
+                    return true;
+                }
+            }
+            catch
+            {
+                //TODO logging
+            }
+            return false;
+        }
+
+        #endregion Datos de Parametro
+
+        #region Datos de TipoParametro
+
+        public IQueryable<TipoParametro> GetAllTipoParametros()
+        {
+            return _ctx.TipoParametro.AsQueryable();
+        }
+        public TipoParametro GetTipoParametro(int tipoParametroId, bool includeParametro = true)
+        {
+            if (includeParametro)
+            {
+                return _ctx.TipoParametro.Include("Parametros").Where(t => t.Id == tipoParametroId).FirstOrDefault();
+            }
+            else
+            {
+                return _ctx.TipoParametro.Where(t => t.Id == tipoParametroId).FirstOrDefault();
+            }
+
+        }
+        public bool Insert(TipoParametro tipoParametro)
+        {
+            try
+            {
+                _ctx.TipoParametro.Add(tipoParametro);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool Update(TipoParametro originalTipoParametro, TipoParametro updatedTipoParametro)
+        {
+            _ctx.Entry(originalTipoParametro).CurrentValues.SetValues(updatedTipoParametro);
+            return true;
+        }
+        public bool DeleteTipoParametro(int id)
+        {
+            try
+            {
+                var entity = _ctx.TipoParametro.Find(id);
+                if (entity != null)
+                {
+                    _ctx.TipoParametro.Remove(entity);
+                    return true;
+                }
+            }
+            catch
+            {
+                //TODO logging
+            }
+            return false;
+        }
+        #endregion Datos de TipoParametro
+
+        public bool SaveAll()
+        {
+            return _ctx.SaveChanges() > 0;
+        }
+
+
+    }
+}

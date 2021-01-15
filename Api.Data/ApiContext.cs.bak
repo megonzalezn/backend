@@ -1,0 +1,44 @@
+﻿using System.Data.Entity;
+using Api.Data.Entitites;
+using Api.Data.Mappers;
+
+namespace Api.Data
+{
+    public class ApiContext: DbContext
+    {
+        public ApiContext() : base("PortalProveedores")
+        {
+            Configuration.ProxyCreationEnabled = false;
+            Configuration.LazyLoadingEnabled = false;
+
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ApiContext, ApiContextConfigurationMigration>());
+        }
+
+        public DbSet<Parametro> Parametro { get; set; }
+        public DbSet<TipoParametro> TipoParametro { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Configurations.Add(new ParametroMapper());
+            modelBuilder.Configurations.Add(new TipoParametroMapper());
+
+            modelBuilder.Entity<Parametro>()
+                        .HasRequired<TipoParametro>(p => p.Tipo)
+                        .WithMany(t => t.Parametros)
+                        .HasForeignKey<int>(p => p.TipoParametroId);
+
+            modelBuilder.Entity<Parametro>()
+                        .HasOptional<Parametro>(p => p.Padre)
+                        .WithMany(p => p.Hijos)
+                        //.HasForeignKey<int>(p => p.IdPadre)
+                        ;
+
+            modelBuilder.Entity<TipoParametro>()
+                        .HasOptional<TipoParametro>(p => p.TipoPadre)
+                        .WithMany(p => p.Hijos)
+                        ;
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}

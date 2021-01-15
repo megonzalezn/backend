@@ -1,0 +1,30 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using Api.Data.Entitites;
+
+namespace Api.Data
+{
+    public interface IApiRepository
+    {
+        #region  IDatos Parametro
+        IQueryable<Parametro> GetAllParametros();
+        Parametro GetParametro(int parametroId, bool includeTipo = true);
+        IQueryable<Parametro> GetParametroByTipo(int tipoParametro);
+        bool Insert(Parametro parametro);
+        bool Update(Parametro originalParametro, Parametro updatedParametro);
+        bool DeleteParametro(int id);
+        #endregion IDatos Parametro
+
+        #region IDatos TipoParametro
+        IQueryable<TipoParametro> GetAllTipoParametros();
+        TipoParametro GetTipoParametro(int tipoParametroId, bool includeParametro = true);
+        bool Insert(TipoParametro parametro);
+        bool Update(TipoParametro originalParametro, TipoParametro updatedParametro);
+        
+        bool DeleteTipoParametro(int id);
+        #endregion IDatos TipoParametro
+
+        bool SaveAll();
+        
+    }
+}
